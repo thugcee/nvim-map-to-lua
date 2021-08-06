@@ -56,7 +56,7 @@ config = {
 ```
 
 Put any part of this table into `require("map-to-lua").setup` and it will be deep merged
-with default config. See (##Install) for example.
+with default config. See [Install](#Install) for example.
 
 `mapper.package = "M"` is useful when you have a lot of mappings and add
 ```
@@ -73,7 +73,7 @@ Neovim 0.5.0 or newer.
 Example for `packer.nvim`:
 ```lua
     use {
-        "~/lab/progr/nvim-map-to-lua",
+        "thugcee/nvim-map-to-lua",
         ft = "lua",
         config = function ()
             require("map-to-lua").setup {
