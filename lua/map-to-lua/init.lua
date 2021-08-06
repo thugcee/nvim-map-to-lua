@@ -16,7 +16,7 @@ map_converter.config = {
 }
 
 -- useful for troubleshooting
-local enable_debug = true
+local enable_debug = false
 local function debug (...)
     if enable_debug then
         return print(unpack({...}))
