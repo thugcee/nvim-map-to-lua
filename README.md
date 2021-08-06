@@ -40,16 +40,16 @@ by supplying formatter name to the call, like this:
 :lua require("map-to-lua").convert_line("FORMATTER")
 ```
 
-Currently supported formatters are: `neovim` and `mapper`. The former one is for
+Currently supported formatters are: `neovim` (default) and `mapper`. The latter one is for
 `lazytanuki/nvim-mapper` plugin.
 
 ### Configuration
 Default configuration looks like this:
-```
+```lua
 config = {
     default_formatter = "neovim",
     mapper = {
-        package = "M",
+        package = "M",    -- maybe you should change it to "require('nvim-mapper')"
         category = "Misc"
     }
 }
@@ -57,6 +57,12 @@ config = {
 
 Put any part of this table into `require("map-to-lua").setup` and it will be deep merged
 with default config. See (##Install) for example.
+
+`mapper.package = "M"` is useful when you have a lot of mappings and add
+```
+local M = require("nvim-mapper")
+```
+at the beginning of your mapping definitions list.
 
 ## Requirements
 
