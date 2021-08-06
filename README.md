@@ -8,6 +8,7 @@ functions.
 
 - Processes only a single line but you can always create a vim macro for mass execution.
 - There has to be only one `map` command in a processed line.
+- No support for `<buffer>` mapping, but it is planned.
 
 ## Usage
 
@@ -19,8 +20,9 @@ or
 ```
 :lua require("map-to-lua").convert_line()
 ```
+Map it to some key if you like: `:nmap <leader>cm <cmd>lua require("map-to-lua").convert_line()<cr>`
 
-this will convert something like this:
+This will convert something like this:
 ```
 inoremap <silent><expr> <C-d>f     compe#scroll({ 'delta': -4 })
 ```
@@ -28,6 +30,33 @@ into this:
 ```lua
 vim.api.nvim_set_keymap("i", "<C-d>f", "compe#scroll({ 'delta': -4 })", { expr = true, noremap = true, silent = true, })
 ```
+
+### Selecting formatter
+
+Default formatter produces direct call to Neovim's `vim.api.nvim_set_keymap`. This can be changed
+by supplying formatter name to the call, like this:
+```
+:ConvertMapToLua FORMATTER
+:lua require("map-to-lua").convert_line("FORMATTER")
+```
+
+Currently supported formatters are: `neovim` and `mapper`. The former one is for
+`lazytanuki/nvim-mapper` plugin.
+
+### Configuration
+Default configuration looks like this:
+```
+config = {
+    default_formatter = "neovim",
+    mapper = {
+        package = "M",
+        category = "Misc"
+    }
+}
+```
+
+Put any part of this table into `require("map-to-lua").setup` and it will be deep merged
+with default config. See (##Install) for example.
 
 ## Requirements
 
@@ -44,8 +73,7 @@ Example for `packer.nvim`:
             require("map-to-lua").setup {
                 default_formatter = "mapper"
             }
-            local M = require("util-map")
-            M.map("n", "<leader>cm", '<cmd>lua require("map-to-lua").convert_line()<cr>', { }, "Misc", "-C-m--cmd-lua-require--nvim-map-to-lua-map-to-lua---convert-line---cr--1628254156", "cmdluarequirenvimmaptoluamaptoluaconvertlinecr")
+            vim.api.nvim_set_keymap("n", "<leader>cm", '<cmd>lua require("map-to-lua").convert_line()<cr>', { })
         end
     }
 ```
