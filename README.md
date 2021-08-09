@@ -83,3 +83,23 @@ Example for `packer.nvim`:
         end
     }
 ```
+
+Or you can just drop `map-to-lua/init.lua` file into your `nvim/lua` folder. There 
+will be no `ConvertMapToLua` command (it's not needed, I've added it just for 
+convenience) but you can call plug-in's main function by 
+```
+:lua require("map-to-lua").convert_line()
+; or
+:lua require("map-to-lua").convert_line("neovim")
+; or
+:lua require("map-to-lua").convert_line("mapper")
+```
+When using `mapper` don't forget to add `local M = require("util-map")` to your Lua file or change `mapper.package` to `require("util-map")` like this:
+```
+require("map-to-lua").setup {
+                default_formatter = "mapper",
+                mapper = {
+                    package = 'require("util-map")'
+                }
+            }
+```
