@@ -16,7 +16,7 @@ map_converter.config = {
 }
 
 -- useful for troubleshooting
-local enable_debug = false
+local enable_debug = true
 local function debug (...)
     if enable_debug then
         return print(unpack({...}))
@@ -52,12 +52,11 @@ local function parse_map_command(command)
 end
 
 --- Check if there is a special argument at given position at line
--- There can be spaces before special argument. Returned nil means that there are no more
--- special arguments in the map and you should start looking for keys.
--- @param line       str   the parsed line
--- @param start      int   the position in line to be checked
--- @return special   str   name of special argument if there was one found, nil otherwise
--- @return spec_end  int   the position where this special argument ends and where next check should start
+---There can be spaces before special argument. Returned nil means that there are no more
+---special arguments in the map and you should start looking for keys.
+---@param line       string   the parsed line
+---@param start      number   the position in line to be checked
+---@return string, number  string is the name of a special argument if there was one found, nil otherwise, number is the position where this special argument ends and where next check should start
 local function check_special(line, start)
     local special, spec_end = nil, nil
     for _, spec in ipairs(specials) do
@@ -71,10 +70,9 @@ local function check_special(line, start)
 end
 
 --- Look for special arguments like '<silent>' or '<expr>'
--- @param line            str   the parsed line
--- @param start           int   where to start looking for special arguments, should be just after map command
--- @return specials_args  {str = bool}  in the form of {'special_arg_name' = true, ...}
--- @return spec_end       int   position in the line where special keys end and real keys start
+---@param line            string   the parsed line
+---@param start           number   where to start looking for special arguments, should be just after map command
+---@return table, number  Table has form of {'special_arg_name' = true, ...} and the number is a position in the line where special keys end and real keys start
 local function consume_specials(line, start)
     local opts = {}
     local cursor = start
@@ -87,7 +85,7 @@ local function consume_specials(line, start)
         if not spec then
             break
         else
-            opts[spec] = true
+            opts[string.lower(spec)] = true
             spec_end = cursor
         end
         fuse = fuse - 1
@@ -112,10 +110,30 @@ local function gen_desc(text)
     return string.gsub(text, "%W", "")
 end
 
+--- "Buffer" is a special option, it changes API call so it should be detected and removed.
+---@param opts  table   list of options for nvim_set_keymap
+---@return      boolean true if there was an "buffer" option on the list and it was removed
+local function remove_buffer(opts)
+    local key_name = "buffer"
+    if opts[key_name] then
+        opts[key_name] = nil
+        return true
+    else
+        return false
+    end
+end
+
 function formatters.neovim(indent_str, mode, key, rhs, opts)
     local line = indent_str
+    local is_buffer = remove_buffer(opts)
+    print("opts: ", vim.inspect(opts))
     local opts_str = opts_to_str(opts)
-    line = line..string.format("vim.api.nvim_set_keymap(%q, %q, %q, %s)", mode, key, rhs, opts_str)
+    if is_buffer then
+        debug("buffer mapping detected")
+        line = line..string.format("vim.api.nvim_buf_set_keymap(0, %q, %q, %q, %s)", mode, key, rhs, opts_str)
+    else
+        line = line..string.format("vim.api.nvim_set_keymap(%q, %q, %q, %s)", mode, key, rhs, opts_str)
+    end
     return line
 end
 
@@ -175,8 +193,8 @@ function map_converter.convert_line(formatter_name)
 
     -- process lhs
     local lhs_start, lhs_end = string.find(line, "%S+%s", spec_end + 1)
-    local key = vim.trim(string.sub(line, lhs_start, lhs_end))
-    debug("key2: ", key, "lhs_start: ", lhs_start, "lhs_end: ", lhs_end)
+    local lhs = vim.trim(string.sub(line, lhs_start, lhs_end))
+    debug("key2: ", lhs, "lhs_start: ", lhs_start, "lhs_end: ", lhs_end)
 
     -- process rhs
     local rhs = string.sub(line, lhs_end + 1)
@@ -184,7 +202,7 @@ function map_converter.convert_line(formatter_name)
     debug("rhs: ", rhs)
 
     -- format line with converted command
-    local new_map = formatter(indent_str, mode, key, rhs, opts)
+    local new_map = formatter(indent_str, mode, lhs, rhs, opts)
     debug("new map: ", new_map)
 
     -- replace current line with new one
