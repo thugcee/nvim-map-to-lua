@@ -64,6 +64,11 @@ local M = require("nvim-mapper")
 ```
 at the beginning of your mapping definitions list.
 
+Ad hoc configuration:
+```
+:lua require("map-to-lua").setup {mapper = {package = "require('util-map')"}}
+```
+
 ## Requirements
 
 Neovim 0.5.0 or newer.
