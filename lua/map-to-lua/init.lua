@@ -16,7 +16,7 @@ map_converter.config = {
 }
 
 -- useful for troubleshooting
-local enable_debug = true
+local enable_debug = false
 local function debug (...)
     if enable_debug then
         return print(unpack({...}))
@@ -139,9 +139,13 @@ end
 
 function formatters.mapper(indent_str, mode, key, rhs, opts)
     local line = indent_str
+    local is_buffer = remove_buffer(opts)
+    print("opts: ", vim.inspect(opts))
     local opts_str = opts_to_str(opts)
-    line = line..string.format('%s.map(%q, %q, %q, %s, %q, %q, %q)',
+    local map_type = is_buffer and "map_buf(0, " or "map("
+    line = line..string.format('%s.%s%q, %q, %q, %s, %q, %q, %q)',
         map_converter.config.mapper.package,
+        map_type,
         mode, key, rhs, opts_str,
         map_converter.config.mapper.category,
         gen_id(mode..key..rhs),

@@ -8,7 +8,7 @@ functions.
 
 - Processes only a single line but you can always create a vim macro for mass execution.
 - There has to be only one `map` command in a processed line.
-- No support for `<buffer>` mapping, but it is planned.
+- ~~No support for `<buffer>` mapping, but it is planned.~~ Already added.
 
 ## Usage
 
