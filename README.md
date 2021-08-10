@@ -33,7 +33,7 @@ vim.api.nvim_set_keymap("i", "<C-d>f", "compe#scroll({ 'delta': -4 })", { expr =
 
 ### Selecting formatter
 
-Default formatter produces direct call to Neovim's `vim.api.nvim_set_keymap`. This can be changed
+Default formatter produces direct call to Neovim's `vim.api.nvim_set_keymap` or `vim.api.nvim_buf_set_keymap`. This can be changed
 by supplying formatter name to the call, like this:
 ```
 :ConvertMapToLua FORMATTER
@@ -41,7 +41,7 @@ by supplying formatter name to the call, like this:
 ```
 
 Currently supported formatters are: `neovim` (default) and `mapper`. The latter one is for
-`lazytanuki/nvim-mapper` plugin.
+`lazytanuki/nvim-mapper` plugin. Both formatters support special case of buffer mapping.
 
 ### Configuration
 Default configuration looks like this:
