@@ -184,6 +184,10 @@ function map_converter.convert_line(formatter_name)
 
     -- process the command
     local _, commands_end = string.find(line, "map ", indent, true)
+    if not commands_end then
+        print("Sorry, no map command has been detected.")
+        return
+    end
     local command = string.sub(line, indent, commands_end)
     local mode, nonrecursive = parse_map_command(command)
     debug("mode: ", mode, "nonrecursive: ", nonrecursive)
